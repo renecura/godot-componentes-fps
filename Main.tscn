@@ -1,0 +1,162 @@
+[gd_scene load_steps=26 format=3 uid="uid://b0wkh821lwvjv"]
+
+[ext_resource type="Texture2D" uid="uid://qvdklxkgd6d2" path="res://assets/prototype/Dark/texture_07.png" id="1_glv2v"]
+[ext_resource type="Texture2D" uid="uid://cswxe1ago2w15" path="res://assets/prototype/Orange/texture_01.png" id="2_uu6xs"]
+[ext_resource type="Script" uid="uid://dngji8mf801s4" path="res://componentes/apuntar_componente.gd" id="3_cm0pq"]
+[ext_resource type="Script" uid="uid://b2veahqeobm03" path="res://componentes/control_componente.gd" id="3_r0du0"]
+[ext_resource type="Script" uid="uid://ddojvtt13uyt8" path="res://componentes/gravedad_componente.gd" id="5_fos0i"]
+[ext_resource type="Texture2D" uid="uid://bttkxr5pofdc" path="res://assets/crosshairs/crosshairs_tilesheet_white.png" id="5_trn2v"]
+[ext_resource type="Script" uid="uid://diflro4ll5khx" path="res://componentes/saltar_componente.gd" id="6_3dxm6"]
+[ext_resource type="Script" uid="uid://bi7ogtu4j4r0u" path="res://componentes/disparar_componente.gd" id="6_03owx"]
+[ext_resource type="Script" uid="uid://dxsu66vsys0xg" path="res://componentes/apuntar_mouse_componente.gd" id="7_lgr22"]
+[ext_resource type="Script" uid="uid://c1y40jbgmg5x3" path="res://componentes/disparar_ray_componente.gd" id="8_20pc6"]
+[ext_resource type="PackedScene" uid="uid://c7wo3ma8k3qv4" path="res://elementos/proyectil.tscn" id="10_wkp8b"]
+
+[sub_resource type="GDScript" id="GDScript_lgr22"]
+script/source = "extends Node3D
+
+func _input(event: InputEvent) -> void:
+	if event.is_action_pressed(\"ui_cancel\"):
+		get_tree().quit()
+"
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_rxg2q"]
+sky_top_color = Color(0.2208, 0.78752, 0.96, 1)
+sky_horizon_color = Color(0.752465, 0.96595, 1, 1)
+
+[sub_resource type="Sky" id="Sky_glv2v"]
+sky_material = SubResource("ProceduralSkyMaterial_rxg2q")
+
+[sub_resource type="Environment" id="Environment_uu6xs"]
+background_mode = 2
+sky = SubResource("Sky_glv2v")
+ambient_light_source = 3
+
+[sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_rxg2q"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_uu6xs"]
+albedo_texture = ExtResource("1_glv2v")
+uv1_scale = Vector3(1000, 1000, 1000)
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_rxg2q"]
+material = SubResource("StandardMaterial3D_uu6xs")
+size = Vector2(1000, 1000)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_r0du0"]
+albedo_texture = ExtResource("2_uu6xs")
+
+[sub_resource type="BoxMesh" id="BoxMesh_cm0pq"]
+material = SubResource("StandardMaterial3D_r0du0")
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_fos0i"]
+
+[sub_resource type="GDScript" id="GDScript_fos0i"]
+script/source = "extends CharacterBody3D
+
+func _physics_process(_delta: float) -> void:
+	move_and_slide()
+"
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_glv2v"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_glv2v"]
+albedo_color = Color(0, 0.462, 0.77, 1)
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_glv2v"]
+material = SubResource("StandardMaterial3D_glv2v")
+
+[node name="Mundo" type="Node3D"]
+script = SubResource("GDScript_lgr22")
+
+[node name="Environment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_uu6xs")
+
+[node name="Nivel" type="Node3D" parent="."]
+
+[node name="Suelo" type="StaticBody3D" parent="Nivel"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Nivel/Suelo"]
+shape = SubResource("WorldBoundaryShape3D_rxg2q")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Nivel/Suelo"]
+mesh = SubResource("PlaneMesh_rxg2q")
+
+[node name="Sol" type="DirectionalLight3D" parent="Nivel"]
+transform = Transform3D(0.866025, -0.433013, 0.25, 0, 0.5, 0.866025, -0.5, -0.75, 0.433013, 0, 1.90948, 0)
+
+[node name="Caja" type="StaticBody3D" parent="Nivel"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.5, 0, -5)
+metadata/_edit_group_ = true
+
+[node name="Mesh" type="MeshInstance3D" parent="Nivel/Caja"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+mesh = SubResource("BoxMesh_cm0pq")
+skeleton = NodePath("../..")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Nivel/Caja"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+shape = SubResource("BoxShape3D_fos0i")
+
+[node name="Jugador" type="CharacterBody3D" parent="."]
+script = SubResource("GDScript_fos0i")
+
+[node name="Cabeza" type="Node3D" parent="Jugador"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
+
+[node name="JugadorCam" type="Camera3D" parent="Jugador/Cabeza"]
+current = true
+
+[node name="Crosshair" type="Sprite3D" parent="Jugador/Cabeza"]
+transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, 0, 0, -1)
+billboard = 1
+no_depth_test = true
+texture = ExtResource("5_trn2v")
+hframes = 20
+vframes = 10
+frame = 51
+
+[node name="DispararRayComponente" type="RayCast3D" parent="Jugador/Cabeza/Crosshair"]
+transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 0, 0, 0)
+target_position = Vector3(0, 0, -20)
+script = ExtResource("8_20pc6")
+metadata/_custom_type_script = "uid://c1y40jbgmg5x3"
+
+[node name="Componentes" type="Node" parent="Jugador/Cabeza"]
+
+[node name="ApuntarComponente" type="Node" parent="Jugador/Cabeza/Componentes"]
+script = ExtResource("3_cm0pq")
+sensibilidad = 2.0
+ejes_invertidos = true
+metadata/_custom_type_script = "uid://dngji8mf801s4"
+
+[node name="ApuntarMouseComponente" type="Node" parent="Jugador/Cabeza/Componentes"]
+script = ExtResource("7_lgr22")
+metadata/_custom_type_script = "uid://dxsu66vsys0xg"
+
+[node name="DispararComponente" type="Node" parent="Jugador/Cabeza/Componentes" node_paths=PackedStringArray("crosshair")]
+script = ExtResource("6_03owx")
+proyectil_scene = ExtResource("10_wkp8b")
+crosshair = NodePath("../../Crosshair")
+metadata/_custom_type_script = "uid://bi7ogtu4j4r0u"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Jugador"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+shape = SubResource("CapsuleShape3D_glv2v")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Jugador"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+mesh = SubResource("CapsuleMesh_glv2v")
+
+[node name="Componentes" type="Node" parent="Jugador"]
+
+[node name="ControlComponente" type="Node" parent="Jugador/Componentes"]
+script = ExtResource("3_r0du0")
+metadata/_custom_type_script = "uid://b2veahqeobm03"
+
+[node name="GravedadComponente" type="Node" parent="Jugador/Componentes"]
+script = ExtResource("5_fos0i")
+metadata/_custom_type_script = "uid://ddojvtt13uyt8"
+
+[node name="SaltarComponente" type="Node" parent="Jugador/Componentes"]
+script = ExtResource("6_3dxm6")
+metadata/_custom_type_script = "uid://diflro4ll5khx"

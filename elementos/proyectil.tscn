@@ -1,0 +1,33 @@
+[gd_scene load_steps=5 format=3 uid="uid://c7wo3ma8k3qv4"]
+
+[sub_resource type="GDScript" id="GDScript_03owx"]
+script/source = "extends CharacterBody3D
+
+
+func _physics_process(delta: float) -> void:
+	var colision := move_and_collide(velocity * delta)
+	if colision:
+		queue_free()
+"
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_03owx"]
+radius = 0.01
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_abloc"]
+disable_receive_shadows = true
+
+[sub_resource type="SphereMesh" id="SphereMesh_abloc"]
+material = SubResource("StandardMaterial3D_abloc")
+radius = 0.01
+height = 0.02
+radial_segments = 4
+rings = 2
+
+[node name="Proyectil" type="CharacterBody3D"]
+script = SubResource("GDScript_03owx")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("SphereShape3D_03owx")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("SphereMesh_abloc")
